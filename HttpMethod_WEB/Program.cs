@@ -13,7 +13,10 @@ builder.Services.AddControllers();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.EnableAnnotations();
+});
 
 // Register repository and service
 builder.Services.AddScoped<IHTTPMethodRepository, HTTPMethodRepository>();
@@ -37,6 +40,16 @@ app.UseHttpsRedirection();
 // app.UseRouting(); Before .Net 6
 
 app.MapControllers();
+
+app.Use(async (context, next) =>
+{
+    if (context.Request.Method == "TRACE" || context.Request.Method == "CONNECT")
+    {
+        context.SetEndpoint(null); // Allow routing
+    }
+    await next();
+});
+
 
 // Minimal APIs
 
